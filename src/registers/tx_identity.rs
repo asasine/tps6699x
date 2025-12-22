@@ -294,8 +294,8 @@ impl TxIdentity {
         self
     }
 
-    /// Get UFP1 VDO
-    pub fn ufp1_vdo(&self) -> Result<UfpVdo, embedded_usb_pd::vdm::discover_identity::ufp_vdo::TryFromBytesError> {
+    /// Get UFP1 VDO if it can be parsed successfully.
+    pub fn ufp1_vdo(&self) -> Result<UfpVdo, <u32 as TryInto<UfpVdo>>::Error> {
         self.0.ufp1_vdo().try_into()
     }
 

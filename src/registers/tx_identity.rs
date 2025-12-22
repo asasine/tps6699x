@@ -12,6 +12,7 @@
 //! the Discover Identity SVDM ACK message.
 
 use bitfield::bitfield;
+use embedded_usb_pd::vdm::discover_identity::{DfpVdo, UfpVdo};
 
 /// The address of the `Tx Identity` register.
 pub const ADDR: u8 = 0x47;
@@ -294,24 +295,24 @@ impl TxIdentity {
     }
 
     /// Get UFP1 VDO
-    pub fn ufp1_vdo(&self) -> u32 {
-        self.0.ufp1_vdo()
+    pub fn ufp1_vdo(&self) -> Result<UfpVdo, embedded_usb_pd::vdm::discover_identity::ufp_vdo::TryFromBytesError> {
+        self.0.ufp1_vdo().try_into()
     }
 
     /// Set UFP1 VDO and return `self` to chain.
-    pub fn set_ufp1_vdo(&mut self, value: u32) -> &mut Self {
-        self.0.set_ufp1_vdo(value);
+    pub fn set_ufp1_vdo(&mut self, value: UfpVdo) -> &mut Self {
+        self.0.set_ufp1_vdo(value.into());
         self
     }
 
     /// Get DFP1 VDO
-    pub fn dfp1_vdo(&self) -> u32 {
-        self.0.dfp1_vdo()
+    pub fn dfp1_vdo(&self) -> DfpVdo {
+        self.0.dfp1_vdo().into()
     }
 
     /// Set DFP1 VDO and return `self` to chain.
-    pub fn set_dfp1_vdo(&mut self, value: u32) -> &mut Self {
-        self.0.set_dfp1_vdo(value);
+    pub fn set_dfp1_vdo(&mut self, value: DfpVdo) -> &mut Self {
+        self.0.set_dfp1_vdo(value.into());
         self
     }
 }
@@ -373,10 +374,10 @@ mod tests {
         assert_eq!(default_register.usb_product_id(), 0x0);
 
         // Test UFP1 VDO (bits 135-104) = 0h
-        assert_eq!(default_register.ufp1_vdo(), 0x0);
+        assert_eq!(default_register.ufp1_vdo(), Ok(UfpVdo::try_from(0x0).unwrap()));
 
         // Test DFP1 VDO (bits 199-168) = 0h
-        assert_eq!(default_register.dfp1_vdo(), 0x0);
+        assert_eq!(default_register.dfp1_vdo(), DfpVdo::from(0x0));
     }
 
     #[test]

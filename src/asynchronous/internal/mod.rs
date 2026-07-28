@@ -7,7 +7,7 @@ use embedded_usb_pd::{Error, LocalPortId, PdError};
 
 use crate::registers::rx_caps::{RxCapsError, EPR_PDO_START_INDEX};
 use crate::{
-    registers, warn, DeviceError, Mode, MAX_SUPPORTED_PORTS, PORT0, PORT1, TPS66993_NUM_PORTS, TPS66994_NUM_PORTS,
+    info, registers, warn, DeviceError, Mode, MAX_SUPPORTED_PORTS, PORT0, PORT1, TPS66993_NUM_PORTS, TPS66994_NUM_PORTS,
 };
 
 mod command;
@@ -146,6 +146,39 @@ impl<B: I2c> Tps6699x<B> {
         let mut registers = p.into_registers();
 
         let flags = registers.int_event_bus_1().read_async().await?;
+
+        // HACK: add debug logs for investigating a bug by reading some registers before clearing
+        async fn read_debug_registers<B: I2c>(
+            registers: &mut registers::Registers<Port<'_, B>>,
+            port: LocalPortId,
+            flags: registers::field_sets::IntEventBus1,
+        ) -> Result<(), Error<B::Error>> {
+            let mode = registers.mode().read_async().await?;
+            let boot_flags = registers.boot_flags().read_async().await?;
+            info!(
+                "{:?}: IRQ={:?}, mode={:?} boot_flags={:?} ({=[u8; 4]:a}), boot_flags={:?}",
+                port,
+                flags,
+                mode,
+                boot_flags,
+                <[u8; 4]>::from(mode),
+                boot_flags,
+            );
+            Ok(())
+        }
+
+        if flags.boot_error() || flags.patch_loaded() {
+            match read_debug_registers(&mut registers, port, flags).await {
+                Ok(_) => {}
+                Err(e) => {
+                    #[cfg(feature = "defmt")]
+                    warn!("Error reading debug registers: {:?}", e);
+                    #[cfg(not(feature = "defmt"))]
+                    warn!("Error reading debug registers");
+                }
+            }
+        }
+
         // Clear interrupt if anything is set
         if flags != registers::field_sets::IntEventBus1::new_zero() {
             registers.int_clear_bus_1().write_async(|r| *r = flags).await?;

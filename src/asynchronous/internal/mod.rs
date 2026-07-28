@@ -156,11 +156,10 @@ impl<B: I2c> Tps6699x<B> {
             let mode = registers.mode().read_async().await?;
             let boot_flags = registers.boot_flags().read_async().await?;
             info!(
-                "{:?}: IRQ={:?}, mode={:?} boot_flags={:?} ({=[u8; 4]:a}), boot_flags={:?}",
+                "{:?}: IRQ={:?}, mode={:?} ({=[u8; 4]:a}), boot_flags={:?}",
                 port,
                 flags,
                 mode,
-                boot_flags,
                 <[u8; 4]>::from(mode),
                 boot_flags,
             );

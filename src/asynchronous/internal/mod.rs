@@ -168,15 +168,7 @@ impl<B: I2c> Tps6699x<B> {
         }
 
         if flags.boot_error() || flags.patch_loaded() {
-            match read_debug_registers(&mut registers, port, flags).await {
-                Ok(_) => {}
-                Err(e) => {
-                    #[cfg(feature = "defmt")]
-                    warn!("Error reading debug registers: {:?}", e);
-                    #[cfg(not(feature = "defmt"))]
-                    warn!("Error reading debug registers");
-                }
-            }
+            let _ = read_debug_registers(&mut registers, port, flags).await;
         }
 
         // Clear interrupt if anything is set

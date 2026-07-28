@@ -62,6 +62,8 @@ impl<I> Registers<I> {
         callback(39 + 0 * 0, "system_config", reg.into());
         let reg = self.port_control().read()?;
         callback(41 + 0 * 0, "port_control", reg.into());
+        let reg = self.boot_flags().read()?;
+        callback(45 + 0 * 0, "boot_flags", reg.into());
         let reg = self.active_pdo_contract().read()?;
         callback(52 + 0 * 0, "active_pdo_contract", reg.into());
         let reg = self.active_rdo_contract().read()?;
@@ -130,6 +132,8 @@ impl<I> Registers<I> {
         callback(39 + 0 * 0, "system_config", reg.into());
         let reg = self.port_control().read_async().await?;
         callback(41 + 0 * 0, "port_control", reg.into());
+        let reg = self.boot_flags().read_async().await?;
+        callback(45 + 0 * 0, "boot_flags", reg.into());
         let reg = self.active_pdo_contract().read_async().await?;
         callback(52 + 0 * 0, "active_pdo_contract", reg.into());
         let reg = self.active_rdo_contract().read_async().await?;
@@ -404,6 +408,25 @@ impl<I> Registers<I> {
             field_sets::PortControl,
             ::device_driver::RW,
         >::new(self.interface(), address as u8, field_sets::PortControl::new)
+    }
+    /// Detailed status of boot process.
+    pub fn boot_flags(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::BootFlags,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 45;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::BootFlags,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::BootFlags::new)
     }
     /// Active PDO contract
     pub fn active_pdo_contract(
@@ -5953,6 +5976,706 @@ pub mod field_sets {
             self
         }
     }
+    /// Detailed status of boot process.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct BootFlags {
+        /// The internal bits
+        bits: [u8; 52],
+    }
+    impl ::device_driver::FieldSet for BootFlags {
+        const SIZE_BITS: u32 = 416;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl BootFlags {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self {
+                bits: [
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0,
+                ],
+            }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 52] }
+        }
+        ///Read the `boot_stage` field of the register.
+        ///
+        /// Boot stage of device.
+        pub fn boot_stage(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 0, 4)
+            };
+            raw
+        }
+        ///Read the `total_number_p_ps` field of the register.
+        ///
+        /// Total number of ports.
+        pub fn total_number_p_ps(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 64, 66)
+            };
+            raw
+        }
+        ///Read the `is_ext_pp_present` field of the register.
+        ///
+        /// Asserted if external power path is present.
+        pub fn is_ext_pp_present(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 66, 67)
+            };
+            raw > 0
+        }
+        ///Read the `dead_battery_flag` field of the register.
+        ///
+        /// Asserted when the PD controller booted in dead-battery mode.
+        pub fn dead_battery_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 128, 129)
+            };
+            raw > 0
+        }
+        ///Read the `db_port_b_power_provider` field of the register.
+        ///
+        /// Asserted if dead battery port B power provider.
+        pub fn db_port_b_power_provider(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 129, 130)
+            };
+            raw > 0
+        }
+        ///Read the `db_port_a_power_provider` field of the register.
+        ///
+        /// Asserted if dead battery port A power provider.
+        pub fn db_port_a_power_provider(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 130, 131)
+            };
+            raw > 0
+        }
+        ///Read the `port_a_sink_switch` field of the register.
+        ///
+        /// Asserted if port A sink switch is enabled.
+        pub fn port_a_sink_switch(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 131, 132)
+            };
+            raw > 0
+        }
+        ///Read the `port_b_sink_switch` field of the register.
+        ///
+        /// Asserted if port B sink switch is enabled.
+        pub fn port_b_sink_switch(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 132, 133)
+            };
+            raw > 0
+        }
+        ///Read the `poat_ai_2_c_1_target_address` field of the register.
+        ///
+        /// Port A I2C1 target address.
+        pub fn poat_ai_2_c_1_target_address(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 160, 168)
+            };
+            raw
+        }
+        ///Read the `port_bi_2_c_1_target_address` field of the register.
+        ///
+        /// Port B I2C1 target address.
+        pub fn port_bi_2_c_1_target_address(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 168, 176)
+            };
+            raw
+        }
+        ///Read the `port_ai_2_c_2_target_address` field of the register.
+        ///
+        /// Port A I2C2 target address.
+        pub fn port_ai_2_c_2_target_address(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 176, 184)
+            };
+            raw
+        }
+        ///Read the `port_bi_2_c_2_target_address` field of the register.
+        ///
+        /// Port B I2C2 target address.
+        pub fn port_bi_2_c_2_target_address(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 184, 192)
+            };
+            raw
+        }
+        ///Read the `port_ai_2_c_4_target_address` field of the register.
+        ///
+        /// Port A I2C4 target address.
+        pub fn port_ai_2_c_4_target_address(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 192, 200)
+            };
+            raw
+        }
+        ///Read the `port_bi_2_c_4_target_address` field of the register.
+        ///
+        /// Port B I2C4 target address.
+        pub fn port_bi_2_c_4_target_address(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 200, 208)
+            };
+            raw
+        }
+        ///Read the `active_bank` field of the register.
+        ///
+        /// Active bank the device booted from.
+        pub fn active_bank(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 224, 226)
+            };
+            raw
+        }
+        ///Read the `bank_0_valid` field of the register.
+        ///
+        /// Asserted if bank 0 has valid application code.
+        pub fn bank_0_valid(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 226, 227)
+            };
+            raw > 0
+        }
+        ///Read the `bank_1_valid` field of the register.
+        ///
+        /// Asserted if bank 1 has valid application code.
+        pub fn bank_1_valid(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 227, 228)
+            };
+            raw > 0
+        }
+        ///Read the `bank_0_fw_version` field of the register.
+        ///
+        /// Application firmware version in bank 0.
+        pub fn bank_0_fw_version(&self) -> u32 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u32,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 256, 288)
+            };
+            raw
+        }
+        ///Read the `bank_1_fw_version` field of the register.
+        ///
+        /// Application firmware version in bank 1.
+        pub fn bank_1_fw_version(&self) -> u32 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u32,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 288, 320)
+            };
+            raw
+        }
+        ///Read the `adc_in_value` field of the register.
+        ///
+        /// Raw ADCIN value read from Goose.
+        pub fn adc_in_value(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 320, 336)
+            };
+            raw
+        }
+        ///Read the `adc_in_index` field of the register.
+        ///
+        /// ADCIN Index computed in boot firmware.
+        pub fn adc_in_index(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::LE,
+                >(&self.bits, 336, 352)
+            };
+            raw
+        }
+        ///Write the `boot_stage` field of the register.
+        ///
+        /// Boot stage of device.
+        pub fn set_boot_stage(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 0, 4, &mut self.bits)
+            };
+        }
+        ///Write the `total_number_p_ps` field of the register.
+        ///
+        /// Total number of ports.
+        pub fn set_total_number_p_ps(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 64, 66, &mut self.bits)
+            };
+        }
+        ///Write the `is_ext_pp_present` field of the register.
+        ///
+        /// Asserted if external power path is present.
+        pub fn set_is_ext_pp_present(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 66, 67, &mut self.bits)
+            };
+        }
+        ///Write the `dead_battery_flag` field of the register.
+        ///
+        /// Asserted when the PD controller booted in dead-battery mode.
+        pub fn set_dead_battery_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 128, 129, &mut self.bits)
+            };
+        }
+        ///Write the `db_port_b_power_provider` field of the register.
+        ///
+        /// Asserted if dead battery port B power provider.
+        pub fn set_db_port_b_power_provider(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 129, 130, &mut self.bits)
+            };
+        }
+        ///Write the `db_port_a_power_provider` field of the register.
+        ///
+        /// Asserted if dead battery port A power provider.
+        pub fn set_db_port_a_power_provider(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 130, 131, &mut self.bits)
+            };
+        }
+        ///Write the `port_a_sink_switch` field of the register.
+        ///
+        /// Asserted if port A sink switch is enabled.
+        pub fn set_port_a_sink_switch(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 131, 132, &mut self.bits)
+            };
+        }
+        ///Write the `port_b_sink_switch` field of the register.
+        ///
+        /// Asserted if port B sink switch is enabled.
+        pub fn set_port_b_sink_switch(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 132, 133, &mut self.bits)
+            };
+        }
+        ///Write the `poat_ai_2_c_1_target_address` field of the register.
+        ///
+        /// Port A I2C1 target address.
+        pub fn set_poat_ai_2_c_1_target_address(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 160, 168, &mut self.bits)
+            };
+        }
+        ///Write the `port_bi_2_c_1_target_address` field of the register.
+        ///
+        /// Port B I2C1 target address.
+        pub fn set_port_bi_2_c_1_target_address(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 168, 176, &mut self.bits)
+            };
+        }
+        ///Write the `port_ai_2_c_2_target_address` field of the register.
+        ///
+        /// Port A I2C2 target address.
+        pub fn set_port_ai_2_c_2_target_address(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 176, 184, &mut self.bits)
+            };
+        }
+        ///Write the `port_bi_2_c_2_target_address` field of the register.
+        ///
+        /// Port B I2C2 target address.
+        pub fn set_port_bi_2_c_2_target_address(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 184, 192, &mut self.bits)
+            };
+        }
+        ///Write the `port_ai_2_c_4_target_address` field of the register.
+        ///
+        /// Port A I2C4 target address.
+        pub fn set_port_ai_2_c_4_target_address(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 192, 200, &mut self.bits)
+            };
+        }
+        ///Write the `port_bi_2_c_4_target_address` field of the register.
+        ///
+        /// Port B I2C4 target address.
+        pub fn set_port_bi_2_c_4_target_address(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 200, 208, &mut self.bits)
+            };
+        }
+        ///Write the `active_bank` field of the register.
+        ///
+        /// Active bank the device booted from.
+        pub fn set_active_bank(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 224, 226, &mut self.bits)
+            };
+        }
+        ///Write the `bank_0_valid` field of the register.
+        ///
+        /// Asserted if bank 0 has valid application code.
+        pub fn set_bank_0_valid(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 226, 227, &mut self.bits)
+            };
+        }
+        ///Write the `bank_1_valid` field of the register.
+        ///
+        /// Asserted if bank 1 has valid application code.
+        pub fn set_bank_1_valid(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::LE,
+                >(raw, 227, 228, &mut self.bits)
+            };
+        }
+        ///Write the `bank_0_fw_version` field of the register.
+        ///
+        /// Application firmware version in bank 0.
+        pub fn set_bank_0_fw_version(&mut self, value: u32) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u32,
+                    ::device_driver::ops::LE,
+                >(raw, 256, 288, &mut self.bits)
+            };
+        }
+        ///Write the `bank_1_fw_version` field of the register.
+        ///
+        /// Application firmware version in bank 1.
+        pub fn set_bank_1_fw_version(&mut self, value: u32) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u32,
+                    ::device_driver::ops::LE,
+                >(raw, 288, 320, &mut self.bits)
+            };
+        }
+        ///Write the `adc_in_value` field of the register.
+        ///
+        /// Raw ADCIN value read from Goose.
+        pub fn set_adc_in_value(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::LE,
+                >(raw, 320, 336, &mut self.bits)
+            };
+        }
+        ///Write the `adc_in_index` field of the register.
+        ///
+        /// ADCIN Index computed in boot firmware.
+        pub fn set_adc_in_index(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::LE,
+                >(raw, 336, 352, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 52]> for BootFlags {
+        fn from(bits: [u8; 52]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<BootFlags> for [u8; 52] {
+        fn from(val: BootFlags) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for BootFlags {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("BootFlags");
+            d.field("boot_stage", &self.boot_stage());
+            d.field("total_number_p_ps", &self.total_number_p_ps());
+            d.field("is_ext_pp_present", &self.is_ext_pp_present());
+            d.field("dead_battery_flag", &self.dead_battery_flag());
+            d.field("db_port_b_power_provider", &self.db_port_b_power_provider());
+            d.field("db_port_a_power_provider", &self.db_port_a_power_provider());
+            d.field("port_a_sink_switch", &self.port_a_sink_switch());
+            d.field("port_b_sink_switch", &self.port_b_sink_switch());
+            d.field(
+                "poat_ai_2_c_1_target_address",
+                &self.poat_ai_2_c_1_target_address(),
+            );
+            d.field(
+                "port_bi_2_c_1_target_address",
+                &self.port_bi_2_c_1_target_address(),
+            );
+            d.field(
+                "port_ai_2_c_2_target_address",
+                &self.port_ai_2_c_2_target_address(),
+            );
+            d.field(
+                "port_bi_2_c_2_target_address",
+                &self.port_bi_2_c_2_target_address(),
+            );
+            d.field(
+                "port_ai_2_c_4_target_address",
+                &self.port_ai_2_c_4_target_address(),
+            );
+            d.field(
+                "port_bi_2_c_4_target_address",
+                &self.port_bi_2_c_4_target_address(),
+            );
+            d.field("active_bank", &self.active_bank());
+            d.field("bank_0_valid", &self.bank_0_valid());
+            d.field("bank_1_valid", &self.bank_1_valid());
+            d.field("bank_0_fw_version", &self.bank_0_fw_version());
+            d.field("bank_1_fw_version", &self.bank_1_fw_version());
+            d.field("adc_in_value", &self.adc_in_value());
+            d.field("adc_in_index", &self.adc_in_index());
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for BootFlags {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "BootFlags {{ ");
+            defmt::write!(f, "boot_stage: {=u8}, ", & self.boot_stage());
+            defmt::write!(f, "total_number_p_ps: {=u8}, ", & self.total_number_p_ps());
+            defmt::write!(f, "is_ext_pp_present: {=bool}, ", & self.is_ext_pp_present());
+            defmt::write!(f, "dead_battery_flag: {=bool}, ", & self.dead_battery_flag());
+            defmt::write!(
+                f, "db_port_b_power_provider: {=bool}, ", & self
+                .db_port_b_power_provider()
+            );
+            defmt::write!(
+                f, "db_port_a_power_provider: {=bool}, ", & self
+                .db_port_a_power_provider()
+            );
+            defmt::write!(
+                f, "port_a_sink_switch: {=bool}, ", & self.port_a_sink_switch()
+            );
+            defmt::write!(
+                f, "port_b_sink_switch: {=bool}, ", & self.port_b_sink_switch()
+            );
+            defmt::write!(
+                f, "poat_ai_2_c_1_target_address: {=u8}, ", & self
+                .poat_ai_2_c_1_target_address()
+            );
+            defmt::write!(
+                f, "port_bi_2_c_1_target_address: {=u8}, ", & self
+                .port_bi_2_c_1_target_address()
+            );
+            defmt::write!(
+                f, "port_ai_2_c_2_target_address: {=u8}, ", & self
+                .port_ai_2_c_2_target_address()
+            );
+            defmt::write!(
+                f, "port_bi_2_c_2_target_address: {=u8}, ", & self
+                .port_bi_2_c_2_target_address()
+            );
+            defmt::write!(
+                f, "port_ai_2_c_4_target_address: {=u8}, ", & self
+                .port_ai_2_c_4_target_address()
+            );
+            defmt::write!(
+                f, "port_bi_2_c_4_target_address: {=u8}, ", & self
+                .port_bi_2_c_4_target_address()
+            );
+            defmt::write!(f, "active_bank: {=u8}, ", & self.active_bank());
+            defmt::write!(f, "bank_0_valid: {=bool}, ", & self.bank_0_valid());
+            defmt::write!(f, "bank_1_valid: {=bool}, ", & self.bank_1_valid());
+            defmt::write!(f, "bank_0_fw_version: {=u32}, ", & self.bank_0_fw_version());
+            defmt::write!(f, "bank_1_fw_version: {=u32}, ", & self.bank_1_fw_version());
+            defmt::write!(f, "adc_in_value: {=u16}, ", & self.adc_in_value());
+            defmt::write!(f, "adc_in_index: {=u16}, ", & self.adc_in_index());
+            defmt::write!(f, "}}");
+        }
+    }
+    impl core::ops::BitAnd for BootFlags {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for BootFlags {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for BootFlags {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for BootFlags {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for BootFlags {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for BootFlags {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for BootFlags {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Active PDO contract
     #[derive(Copy, Clone, Eq, PartialEq)]
     pub struct ActivePdoContract {
@@ -8733,6 +9456,8 @@ pub mod field_sets {
         SystemConfig(SystemConfig),
         /// Port control
         PortControl(PortControl),
+        /// Detailed status of boot process.
+        BootFlags(BootFlags),
         /// Active PDO contract
         ActivePdoContract(ActivePdoContract),
         /// Active PDO contract
@@ -8764,6 +9489,7 @@ pub mod field_sets {
                 Self::PowerPathStatus(val) => core::fmt::Debug::fmt(val, f),
                 Self::SystemConfig(val) => core::fmt::Debug::fmt(val, f),
                 Self::PortControl(val) => core::fmt::Debug::fmt(val, f),
+                Self::BootFlags(val) => core::fmt::Debug::fmt(val, f),
                 Self::ActivePdoContract(val) => core::fmt::Debug::fmt(val, f),
                 Self::ActiveRdoContract(val) => core::fmt::Debug::fmt(val, f),
                 Self::PdStatus(val) => core::fmt::Debug::fmt(val, f),
@@ -8793,6 +9519,7 @@ pub mod field_sets {
                 Self::PowerPathStatus(val) => defmt::Format::format(val, f),
                 Self::SystemConfig(val) => defmt::Format::format(val, f),
                 Self::PortControl(val) => defmt::Format::format(val, f),
+                Self::BootFlags(val) => defmt::Format::format(val, f),
                 Self::ActivePdoContract(val) => defmt::Format::format(val, f),
                 Self::ActiveRdoContract(val) => defmt::Format::format(val, f),
                 Self::PdStatus(val) => defmt::Format::format(val, f),
@@ -8858,6 +9585,11 @@ pub mod field_sets {
     impl From<PortControl> for FieldSetValue {
         fn from(val: PortControl) -> Self {
             Self::PortControl(val)
+        }
+    }
+    impl From<BootFlags> for FieldSetValue {
+        fn from(val: BootFlags) -> Self {
+            Self::BootFlags(val)
         }
     }
     impl From<ActivePdoContract> for FieldSetValue {

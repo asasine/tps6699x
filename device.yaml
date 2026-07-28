@@ -939,6 +939,112 @@ PortControl:
         Aux: 0x2
         Open: 0x3
 
+BootFlags:
+  type: register
+  address: 0x2D
+  access: RO
+  size_bits: 416
+  reset_value: 0
+  description: Detailed status of boot process.
+  fields:
+    BootStage:
+      base: uint
+      start: 0
+      end: 4
+      description: Boot stage of device.
+    TotalNumberPPs:
+      base: uint
+      start: 64
+      end: 66
+      description: Total number of ports.
+    IsExtPPPresent:
+      base: bool
+      start: 66
+      description: Asserted if external power path is present.
+    DeadBatteryFlag:
+      base: bool
+      start: 128
+      description: Asserted when the PD controller booted in dead-battery mode.
+    DBPortBPowerProvider:
+      base: bool
+      start: 129
+      description: Asserted if dead battery port B power provider.
+    DBPortAPowerProvider:
+      base: bool
+      start: 130
+      description: Asserted if dead battery port A power provider.
+    PortASinkSwitch:
+      base: bool
+      start: 131
+      description: Asserted if port A sink switch is enabled.
+    PortBSinkSwitch:
+      base: bool
+      start: 132
+      description: Asserted if port B sink switch is enabled.
+    PoatAI2c1TargetAddress:
+      base: uint
+      start: 160
+      end: 168
+      description: Port A I2C1 target address.
+    PortBI2c1TargetAddress:
+      base: uint
+      start: 168
+      end: 176
+      description: Port B I2C1 target address.
+    PortAI2c2TargetAddress:
+      base: uint
+      start: 176
+      end: 184
+      description: Port A I2C2 target address.
+    PortBI2c2TargetAddress:
+      base: uint
+      start: 184
+      end: 192
+      description: Port B I2C2 target address.
+    PortAI2c4TargetAddress:
+      base: uint
+      start: 192
+      end: 200
+      description: Port A I2C4 target address.
+    PortBI2c4TargetAddress:
+      base: uint
+      start: 200
+      end: 208
+      description: Port B I2C4 target address.
+    ActiveBank:
+      base: uint
+      start: 224
+      end: 226
+      description: Active bank the device booted from.
+    Bank0Valid:
+      base: bool
+      start: 226
+      description: Asserted if bank 0 has valid application code.
+    Bank1Valid:
+      base: bool
+      start: 227
+      description: Asserted if bank 1 has valid application code.
+    Bank0FwVersion:
+      base: uint
+      start: 256
+      end: 288
+      description: Application firmware version in bank 0.
+    Bank1FwVersion:
+      base: uint
+      start: 288
+      end: 320
+      description: Application firmware version in bank 1.
+    AdcInValue:
+      base: uint
+      start: 320
+      end: 336
+      description: Raw ADCIN value read from Goose.
+    AdcInIndex:
+      base: uint
+      start: 336
+      end: 352
+      description: ADCIN Index computed in boot firmware.
+
 ActivePdoContract:
   type: register
   address: 0x34
